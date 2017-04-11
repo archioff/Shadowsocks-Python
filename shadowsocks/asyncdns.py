@@ -278,7 +278,8 @@ class DNSResolver(object):
                             if len(parts) >= 2:
                                 server = parts[1]
                                 if common.is_ip(server) == socket.AF_INET:
-                                    if type(server) != str:
+                                    if not isinstance(server, str):
+                                    # if type(server) != str:
                                         server = server.decode('utf8')
                                     self._servers.append(server)
         except IOError:
@@ -370,7 +371,7 @@ class DNSResolver(object):
         else:
             data, addr = sock.recvfrom(1024)
             if addr[0] not in self._servers:
-                logging.warn('received a packet other than our dns')
+                logging.warning('received a packet other than our dns')
                 return
             self._handle_data(data)
 
@@ -397,7 +398,8 @@ class DNSResolver(object):
             self._sock.sendto(req, (server, 53))
 
     def resolve(self, hostname, callback):
-        if type(hostname) != bytes:
+        if not isinstance(hostname, bytes):
+        # if type(hostname) != bytes:
             hostname = hostname.encode('utf8')
         if not hostname:
             callback(None, Exception('empty hostname'))

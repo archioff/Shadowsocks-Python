@@ -97,7 +97,7 @@ class LRUCache(collections.MutableMapping):
             del self._time_to_keys[least]
         if c:
             self._closed_values.clear()
-            logging.debug('%d keys swept' % c)
+            logging.debug('%d keys swept', c)
 
 
 def test():

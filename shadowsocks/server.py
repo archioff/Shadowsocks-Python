@@ -17,15 +17,16 @@
 
 from __future__ import absolute_import, division, print_function, \
     with_statement
-
+    
 import sys
 import os
 import logging
 import signal
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 from shadowsocks import shell, daemon, eventloop, tcprelay, udprelay, \
     asyncdns, manager
+
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 
 def main():
@@ -37,14 +38,15 @@ def main():
 
     if config['port_password']:
         if config['password']:
-            logging.warn('warning: port_password should not be used with '
-                         'server_port and password. server_port and password '
-                         'will be ignored')
+            logging.warning('warning: port_password should not be used with '
+                            'server_port and password. server_port and password '
+                            'will be ignored')
     else:
         config['port_password'] = {}
         server_port = config.get('server_port', None)
         if server_port:
-            if type(server_port) == list:
+            if isinstance(server_port, list):
+            # if type(server_port) == list:
                 for a_server_port in server_port:
                     config['port_password'][a_server_port] = config['password']
             else:
@@ -69,14 +71,14 @@ def main():
         a_config = config.copy()
         a_config['server_port'] = int(port)
         a_config['password'] = password
-        logging.info("starting server at %s:%d" %
-                     (a_config['server'], int(port)))
+        logging.info("starting server at %s:%d",
+                     a_config['server'], int(port))
         tcp_servers.append(tcprelay.TCPRelay(a_config, dns_resolver, False))
         udp_servers.append(udprelay.UDPRelay(a_config, dns_resolver, False))
 
     def run_server():
         def child_handler(signum, _):
-            logging.warn('received SIGQUIT, doing graceful shutting down..')
+            logging.warning('received SIGQUIT, doing graceful shutting down..')
             list(map(lambda s: s.close(next_tick=True),
                      tcp_servers + udp_servers))
         signal.signal(getattr(signal, 'SIGQUIT', signal.SIGTERM),
@@ -133,7 +135,7 @@ def main():
                 for child in children:
                     os.waitpid(child, 0)
         else:
-            logging.warn('worker is only available on Unix/Linux')
+            logging.warning('worker is only available on Unix/Linux')
             run_server()
     else:
         run_server()

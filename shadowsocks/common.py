@@ -24,7 +24,8 @@ import logging
 
 
 def compat_ord(s):
-    if type(s) == int:
+    if isinstance(s, int):
+    # if type(s) == int:
         return s
     return _ord(s)
 
@@ -43,14 +44,16 @@ chr = compat_chr
 
 def to_bytes(s):
     if bytes != str:
-        if type(s) == str:
+        if isinstance(s, str):
+        # if type(s) == str:
             return s.encode('utf-8')
     return s
 
 
 def to_str(s):
     if bytes != str:
-        if type(s) == bytes:
+        if isinstance(s, bytes):
+        # if type(s) == bytes:
             return s.decode('utf-8')
     return s
 
@@ -98,7 +101,8 @@ def inet_pton(family, addr):
 def is_ip(address):
     for family in (socket.AF_INET, socket.AF_INET6):
         try:
-            if type(address) != str:
+            if not isinstance(address, str):
+            # if type(address) != str:
                 address = address.decode('utf8')
             inet_pton(family, address)
             return family
@@ -150,7 +154,7 @@ def parse_header(data):
             dest_port = struct.unpack('>H', data[5:7])[0]
             header_length = 7
         else:
-            logging.warn('header is too short')
+            logging.warning('header is too short')
     elif addrtype == ADDRTYPE_HOST:
         if len(data) > 2:
             addrlen = ord(data[1])
@@ -160,19 +164,19 @@ def parse_header(data):
                                                      addrlen])[0]
                 header_length = 4 + addrlen
             else:
-                logging.warn('header is too short')
+                logging.warning('header is too short')
         else:
-            logging.warn('header is too short')
+            logging.warning('header is too short')
     elif addrtype == ADDRTYPE_IPV6:
         if len(data) >= 19:
             dest_addr = socket.inet_ntop(socket.AF_INET6, data[1:17])
             dest_port = struct.unpack('>H', data[17:19])[0]
             header_length = 19
         else:
-            logging.warn('header is too short')
+            logging.warning('header is too short')
     else:
-        logging.warn('unsupported addrtype %d, maybe wrong password or '
-                     'encryption method' % addrtype)
+        logging.warning('unsupported addrtype %d, maybe wrong password or '
+                        'encryption method', addrtype)
     if dest_addr is None:
         return None
     return addrtype, to_bytes(dest_addr), dest_port, header_length
@@ -184,7 +188,8 @@ class IPNetwork(object):
     def __init__(self, addrs):
         self._network_list_v4 = []
         self._network_list_v6 = []
-        if type(addrs) == str:
+        if isinstance(addrs, str):
+        # if type(addrs) == str:
             addrs = addrs.split(',')
         list(map(self.add_network, addrs))
 
@@ -206,8 +211,8 @@ class IPNetwork(object):
             while (ip & 1) == 0 and ip is not 0:
                 ip >>= 1
                 prefix_size += 1
-            logging.warn("You did't specify CIDR routing prefix size for %s, "
-                         "implicit treated as %s/%d" % (addr, addr, addr_len))
+            logging.warning("You did't specify CIDR routing prefix size for %s, "
+                            "implicit treated as %s/%d", addr, addr, addr_len)
         elif block[1].isdigit() and int(block[1]) <= addr_len:
             prefix_size = addr_len - int(block[1])
             ip >>= prefix_size

@@ -126,9 +126,11 @@ class UDPRelay(object):
     def _get_a_server(self):
         server = self._config['server']
         server_port = self._config['server_port']
-        if type(server_port) == list:
+        if isinstance(server_port, list):
+        # if type(server_port) == list:
             server_port = random.choice(server_port)
-        if type(server) == list:
+        if isinstance(server, list):
+        # if type(server) == list:
             server = random.choice(server)
         logging.debug('chosen server: %s:%d', server, server_port)
         return server, server_port
@@ -152,7 +154,7 @@ class UDPRelay(object):
         if self._is_local:
             frag = common.ord(data[2])
             if frag != 0:
-                logging.warn('drop a message since frag is not 0')
+                logging.warning('drop a message since frag is not 0')
                 return
             else:
                 data = data[3:]
@@ -189,7 +191,7 @@ class UDPRelay(object):
             # TODO async getaddrinfo
             if self._forbidden_iplist:
                 if common.to_str(sa[0]) in self._forbidden_iplist:
-                    logging.debug('IP %s is in forbidden list, drop' %
+                    logging.debug('IP %s is in forbidden list, drop',
                                   common.to_str(sa[0]))
                     # drop
                     return
