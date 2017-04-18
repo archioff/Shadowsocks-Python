@@ -19,6 +19,7 @@ from __future__ import absolute_import, division, print_function, \
 
 import os
 import logging
+import glob
 
 
 def find_library_nt(name):
@@ -33,9 +34,10 @@ def find_library_nt(name):
             results.append(fname)
         if fname.lower().endswith(".dll"):
             continue
-        fname = fname + ".dll"
-        if os.path.isfile(fname):
-            results.append(fname)
+        fname += "*.dll"
+        files = glob.glob(fname)
+        if files:
+            results.extend(files)
     return results
 
 
@@ -65,7 +67,6 @@ def find_library(possible_lib_names, search_symbol, library_name):
         # We may get here when find_library fails because, for example,
         # the user does not have sufficient privileges to access those
         # tools underlying find_library on linux.
-        import glob
 
         for name in lib_names:
             patterns = [
